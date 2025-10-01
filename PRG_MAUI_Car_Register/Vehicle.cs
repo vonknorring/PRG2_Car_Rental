@@ -8,6 +8,7 @@
         private string registrationNumber = string.Empty;
         private string manufacturer = string.Empty;
         private string model = string.Empty;
+        private string year = string.Empty;
 
         // Konstruktor (en metod med samma namn som klassen, som returnerar ett objekt)
         public Vehicle(Type vehicleType) // en konstruktor kan, men måste inte, ta parametrar
@@ -64,25 +65,75 @@
         public string Model
         {
             get { return model; }
-            set { this.model = value; }
+            set 
+            {
+                
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentException("Du måste skriva in en modell på fordonet!");
+
+                }
+                else
+                {
+                    model = value;
+                }
+            }
         }
 
         //TODO Modell ska valideras, sparas i objektet och visas i UI
         public string Manufacturer
         {
             get { return manufacturer; }
-            set { this.manufacturer = value; }
+            set 
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentException("Du måste skriva in en tillvärkare på fordonet!");
+
+                }
+                else
+                {
+                    manufacturer = value;
+                }
+            }
         }
 
         //TODO Att spara årsmodell ska möjliggöras, ska valideras, sparas i objektet och visas i UI
 
+        public string Year
+        {
+            get { return this.year; }
+            set 
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentException("Du måste skriva in en årsmodell!");
+                }
+                else
+                {
+                    if (int.TryParse(value, out int checkedInt))
+                    {
+                        if (1800 < checkedInt && checkedInt < 2026) 
+                        {
+                             year = value;
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Du måste skriva in en årsmodell mellan 1800-2025!");
+                        }
+                    }
+                    else throw new ArgumentException("Du måste skriva in ett årtal inte text!");
+                }
+            
+            }
+        }
 
         // Klassens  eventuella övriga metoder brukar finnas här, här en override av ToString()
 
         //TODO Modifiera overriden på ToString() så att allt visas som önskat i UIs listBox
         public override string ToString()
         {
-            return this.registrationNumber + "\t" + this.vehicleType + "\t" + this.manufacturer + "\t" + this.model;
+            return this.registrationNumber + "\t" + this.vehicleType + "\t" + this.manufacturer + "\t" + this.model + "\t" + this.Year;
         }
     }
 }
