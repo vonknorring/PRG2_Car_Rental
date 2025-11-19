@@ -1,5 +1,8 @@
 ﻿
 
+using PRG_MAUI_Car_Register.Model;
+using System.Diagnostics;
+
 namespace PRG_MAUI_Car_Register
 {
     public partial class MainPage : ContentPage
@@ -16,7 +19,20 @@ namespace PRG_MAUI_Car_Register
         {
             try
             {
-                Vehicle vehicle = new Vehicle((Vehicle.Type)pickerType.SelectedIndex);
+                Vehicle vehicle = null;
+
+                switch (pickerType.SelectedItem.ToString())
+                {
+                    case "Bil":
+                        vehicle = new Car();
+                        break;
+                    case "MC":
+                        vehicle = new MC();
+                        break;
+                    case "Lastbil":
+                        vehicle = new Truck();
+                        break;
+                    default : Debug.WriteLine("Inget objekt skapades"); break;                }
 
                 string regNr = entryRegistrationNumber.Text;
                 vehicle.RegistrationNumber = regNr;
@@ -32,6 +48,9 @@ namespace PRG_MAUI_Car_Register
                 entryManufacturer.Text = string.Empty;
                 entryModel.Text = string.Empty;
                 entryYear.Text = string.Empty;
+
+
+
             }
             catch (ArgumentException ex)
             {
@@ -48,15 +67,15 @@ namespace PRG_MAUI_Car_Register
 
             if (radioCar.IsChecked)
             {
-                filteredList = vehicleList.Where(v => v.VehicleType == Vehicle.Type.Bil).ToList();
+                filteredList = vehicleList.Where(v => v is Car).ToList();
             }
             else if (radioMC.IsChecked)
             {
-                filteredList = vehicleList.Where(v => v.VehicleType == Vehicle.Type.MC).ToList();
+                filteredList = vehicleList.Where(v => v is MC).ToList();
             }
             else if (radioTruck.IsChecked)
             {
-                filteredList = vehicleList.Where(v => v.VehicleType == Vehicle.Type.Lastbil).ToList();
+                filteredList = vehicleList.Where(v => v is Truck).ToList();
             }
             else
             {
@@ -85,8 +104,8 @@ namespace PRG_MAUI_Car_Register
                                          $"Registreringsnummer: {foundVehicle.RegistrationNumber}\n" +
                                          $"Tillverkare: {foundVehicle.Manufacturer}\n" +
                                          $"Modell: {foundVehicle.Model}\n" +
-                                         $"Årsmodell: {foundVehicle.Year}\n" +
-                                         $"Typ: {foundVehicle.VehicleType}";
+                                         $"Årsmodell: {foundVehicle.Year}\n";
+                //$"Typ: {foundVehicle.VehicleType}";
             }
             else
             {
@@ -94,7 +113,7 @@ namespace PRG_MAUI_Car_Register
             }
         }
 
-        
+
 
     }
 }

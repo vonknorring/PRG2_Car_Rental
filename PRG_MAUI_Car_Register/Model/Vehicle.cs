@@ -1,20 +1,18 @@
-﻿namespace PRG_MAUI_Car_Register
+﻿namespace PRG_MAUI_Car_Register.Model
 {
-    class Vehicle
+    public abstract class Vehicle
     {
         // Medlemsvariabler
-        public enum Type { Bil, MC, Lastbil };
-        private Type vehicleType;
         private string registrationNumber = string.Empty;
         private string manufacturer = string.Empty;
         private string model = string.Empty;
         private string year = string.Empty;
 
         // Konstruktor (en metod med samma namn som klassen, som returnerar ett objekt)
-        public Vehicle(Type vehicleType) // en konstruktor kan, men måste inte, ta parametrar
-        {
-            this.vehicleType = vehicleType;
-        }
+       // public Vehicle(Type vehicleType) // en konstruktor kan, men måste inte, ta parametrar
+        //{
+         //   this.vehicleType = vehicleType;
+        //}
 
         // Get-Set för att hålla variablerna privata, och för att validera inkommande värden från UI (user interface, användargränssnittet)
         public string RegistrationNumber
@@ -36,7 +34,7 @@
                         if (i < 5)
                         {
                             if (!char.IsDigit(value[i]))
-                                throw new ArgumentException("Inkorret registreringsnummer: Det fjärde och femte tecknet måste vara siffror.");
+                                throw new ArgumentException("Inkorret registreringsnummer: Det fjärde, femte och sjätte tecknet måste vara siffror.");
                         }
                         else
                         {
@@ -55,11 +53,11 @@
         }
 
         // Fordonstyp tas in från dropdown-menyn, och behöver därför inte valideras
-        public Type VehicleType
-        {
-            get { return vehicleType; }
-            set { this.vehicleType = value; }
-        }
+        //public Type VehicleType
+        //{
+        //    get { return vehicleType; }
+        //    set { vehicleType = value; }
+        //}
 
         //TODO Tillverkare ska valideras, sparas i objektet och visas i UI
         public string Model
@@ -72,6 +70,10 @@
                 {
                     throw new ArgumentException("Du måste skriva in en modell på fordonet!");
 
+                }
+                if (!value.All(c => char.IsLetterOrDigit(c) || c == ' '))
+                {
+                    throw new ArgumentException("Du får bara skriva bokstäver eller siffror i model!");
                 }
                 else
                 {
@@ -91,6 +93,10 @@
                     throw new ArgumentException("Du måste skriva in en tillvärkare på fordonet!");
 
                 }
+                if (!value.All(c => char.IsLetter(c) || c == ' '))
+                {
+                    throw new ArgumentException("Du får bara skriva bokstäver i Manifacturer!");
+                }
                 else
                 {
                     manufacturer = value;
@@ -102,7 +108,7 @@
 
         public string Year
         {
-            get { return this.year; }
+            get { return year; }
             set 
             {
                 if (string.IsNullOrWhiteSpace(value))
@@ -111,18 +117,26 @@
                 }
                 else
                 {
+                    if (value.Length != 4 || !value.All(char.IsDigit))
+                    {
+                        throw new ArgumentException("Du får bara skriva in 4 siffror inte mer siffror eller andra täcken en siffror.");
+                    }
+
                     if (int.TryParse(value, out int checkedInt))
                     {
-                        if (1800 < checkedInt && checkedInt < 2026) 
+                        if (1885 < checkedInt && checkedInt <= DateTime.Now.Year)
                         {
-                             year = value;
+                            year = value;
                         }
                         else
                         {
-                            throw new ArgumentException("Du måste skriva in en årsmodell mellan 1800-2025!");
+                            throw new ArgumentException($"Du måste skriva in en årsmodell mellan 1886 och {DateTime.Now.Year}!");
                         }
                     }
-                    else throw new ArgumentException("Du måste skriva in ett årtal inte text!");
+                    else throw new ArgumentException("Du måste skriva in ett giltigt årtal!");
+
+                    
+
                 }
             
             }
@@ -133,7 +147,9 @@
         //TODO Modifiera overriden på ToString() så att allt visas som önskat i UIs listBox
         public override string ToString()
         {
-            return this.registrationNumber + "\t" + this.vehicleType + "\t" + this.manufacturer + "\t" + this.model + "\t" + this.Year;
+            return registrationNumber + "\t" + manufacturer + "\t" + model + "\t" + Year;
         }
+
+        public abstract string GetDescription();
     }
 }
