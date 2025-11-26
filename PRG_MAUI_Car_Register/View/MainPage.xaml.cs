@@ -32,7 +32,8 @@ namespace PRG_MAUI_Car_Register
                     case "Lastbil":
                         vehicle = new Truck();
                         break;
-                    default : Debug.WriteLine("Inget objekt skapades"); break;                }
+                    default : Debug.WriteLine("Inget objekt skapades"); break;                
+                }
 
                 string regNr = entryRegistrationNumber.Text;
                 vehicle.RegistrationNumber = regNr;
