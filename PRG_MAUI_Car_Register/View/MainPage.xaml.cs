@@ -1,14 +1,14 @@
 ﻿using PRG_MAUI_Car_Register.ViewModel;
-using System.Windows.Input;
 
-namespace PRG_MAUI_Car_Register
+namespace PRG_MAUI_Car_Register.View
 {
     public partial class MainPage : ContentPage
     {
-        public MainPage()
+        public MainPage(MainPageViewModel viewModel)
         {
             InitializeComponent();
-            BindingContext = new MainPageViewModel();
+            BindingContext = viewModel;
         }
     }
 }
+

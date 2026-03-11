@@ -1,12 +1,15 @@
 ﻿using PRG_MAUI_Car_Register.Model;
+using PRG_MAUI_Car_Register.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
-
+   
 namespace PRG_MAUI_Car_Register.ViewModel
 {
     public class MainPageViewModel : INotifyPropertyChanged
     {
+        private readonly IStorageService _storage;
+
         public ObservableCollection<Vehicle> Vehicles { get; } = new();
 
         public List<string> VehicleTypes { get; } =
@@ -17,6 +20,13 @@ namespace PRG_MAUI_Car_Register.ViewModel
         {
             get => selectedVehicleType;
             set { selectedVehicleType = value; OnPropertyChanged(nameof(SelectedVehicleType)); }
+        }
+
+        private string searchRegistrationNumber;
+        public string SearchRegistrationNumber
+        {
+            get => searchRegistrationNumber;
+            set { searchRegistrationNumber = value; OnPropertyChanged(nameof(SearchRegistrationNumber)); }
         }
 
         private string registrationNumber;
@@ -58,19 +68,32 @@ namespace PRG_MAUI_Car_Register.ViewModel
         public ICommand SearchCommand { get; }
         public ICommand FilterCommand { get; }
 
-        public MainPageViewModel()
+        public MainPageViewModel(IStorageService storage)
         {
+            _storage = storage;
+
             SelectedVehicleType = VehicleTypes[0];
 
-            RegisterCommand = new Command(AddVehicle);
+            RegisterCommand = new Command(AddRegisterCommand);
             SearchCommand = new Command(SearchVehicle);
             FilterCommand = new Command<string>(FilterVehicles);
+
+            _ = LoadAsync();
         }
 
-        private void AddVehicle()
+        private async Task LoadAsync()
         {
-            try 
-            { 
+            var vehicles = await _storage.LoadAsync();
+
+            Vehicles.Clear();
+            foreach (var v in vehicles)
+                Vehicles.Add(v);
+        }
+
+        private async void AddRegisterCommand()
+        {
+            try
+            {
                 Vehicle? vehicle = SelectedVehicleType switch
                 {
                     "Bil" => new Car(),
@@ -79,6 +102,9 @@ namespace PRG_MAUI_Car_Register.ViewModel
                     _ => null
                 };
 
+                if (vehicle == null)
+                    return;
+
                 vehicle.RegistrationNumber = RegistrationNumber;
                 vehicle.Manufacturer = Manufacturer;
                 vehicle.Model = Model;
@@ -86,21 +112,28 @@ namespace PRG_MAUI_Car_Register.ViewModel
 
                 Vehicles.Add(vehicle);
 
+                await SaveAsync();
+
                 RegistrationNumber = "";
                 Manufacturer = "";
                 Model = "";
                 Year = "";
             }
-            catch(ArgumentException ex)
+            catch (ArgumentException ex)
             {
-            Application.Current.MainPage.DisplayAlert("Fel", ex.Message, "OK");            
+                await Application.Current.MainPage.DisplayAlert("Fel", ex.Message, "OK");
             }
+        }
+
+        private async Task SaveAsync()
+        {
+            await _storage.SaveAsync(Vehicles.ToList());
         }
 
         private void SearchVehicle()
         {
             var found = Vehicles.FirstOrDefault(v =>
-                v.RegistrationNumber?.ToLower() == RegistrationNumber?.ToLower());
+                v.RegistrationNumber?.ToLower() == SearchRegistrationNumber?.ToLower());
 
             SearchResult = found != null
                 ? $"Fordon hittat:\n{found.RegistrationNumber} {found.Manufacturer} {found.Model}"
@@ -109,12 +142,14 @@ namespace PRG_MAUI_Car_Register.ViewModel
 
         private void FilterVehicles(string type)
         {
+            var allVehicles = Vehicles.ToList();
+
             IEnumerable<Vehicle> filtered = type switch
             {
-                "Bil" => Vehicles.Where(v => v is Car),
-                "MC" => Vehicles.Where(v => v is MC),
-                "Lastbil" => Vehicles.Where(v => v is Truck),
-                _ => Vehicles
+                "Bil" => allVehicles.Where(v => v is Car),
+                "MC" => allVehicles.Where(v => v is MC),
+                "Lastbil" => allVehicles.Where(v => v is Truck),
+                _ => allVehicles
             };
 
             Vehicles.Clear();
@@ -123,6 +158,7 @@ namespace PRG_MAUI_Car_Register.ViewModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         private void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

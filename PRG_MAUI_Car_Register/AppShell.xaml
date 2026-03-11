@@ -3,13 +3,17 @@
     x:Class="PRG_MAUI_Car_Register.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:PRG_MAUI_Car_Register"
+    xmlns:local="clr-namespace:PRG_MAUI_Car_Register.View"
     Shell.FlyoutBehavior="Disabled"
-    Title="PRG_MAUI_Car_Register">
-
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
-
+    Title="Car Register">
+    <TabBar>
+        <ShellContent
+            Title="Home"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+        <ShellContent
+        Title="Car"
+        ContentTemplate="{DataTemplate local:CarView}"
+        Route="CarView" />
+    </TabBar>
 </Shell>

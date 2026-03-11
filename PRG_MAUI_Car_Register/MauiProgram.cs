@@ -51,6 +51,7 @@ namespace PRG_MAUI_Car_Register
                     });
                 });
             });
+
 #endif
 
 #if ANDROID
@@ -69,7 +70,7 @@ namespace PRG_MAUI_Car_Register
                 });
             });
 #endif
-
+            
 
             return builder.Build();
         }
